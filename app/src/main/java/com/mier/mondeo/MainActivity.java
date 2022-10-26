@@ -15,18 +15,17 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int START = 0;
-    private static final int LAP = 1;
-    private static final int CONTINUE = 2;
-
+    // logic variables
     private boolean running = false;
     private boolean partialRunning = true;
+    private long seconds = 0;
+    private long currentSeconds = 0;
+
+    // ui elements
     private Button mainButton;
     private Button resetButton;
     private TextView partial;
     private TextView total;
-    private long seconds = 0;
-    private long currentSeconds = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         updateTimers();
         stopSaveTransition(true);
         resetButton.setEnabled(false);
-        mainButtonTransition(START);
+        mainButtonTransition("start");
     }
 
 
@@ -84,11 +83,11 @@ public class MainActivity extends AppCompatActivity {
         running = true;
         resetButton.setEnabled(true);
         stopSaveTransition(true);
-        mainButtonTransition(LAP);
+        mainButtonTransition("lap");
     }
 
     private void onClickStop() {
-        mainButtonTransition(CONTINUE);
+        mainButtonTransition("unpause");
         stopSaveTransition(false);
         running = false;
     }
@@ -110,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @NonNull
-    @Contract(value = "_ -> new", pure = true)
     public static int[] formatSeconds(long seconds) {
         return new int[] {
                 (int) seconds / 3600,
@@ -138,23 +136,8 @@ public class MainActivity extends AppCompatActivity {
         resetButton.setBackgroundColor(getResources().getColor(stop ? R.color.red : R.color.green));
     }
 
-    private void mainButtonTransition(int mode) {
-        String msg;
-
-        switch(mode) {
-            case START:
-                msg = getResources().getString(R.string.start);
-                break;
-            case LAP:
-                msg = getResources().getString(R.string.lap);
-                break;
-            case CONTINUE:
-                msg = getResources().getString(R.string.unpause);
-                break;
-            default:
-                msg = getResources().getString(R.string.error);
-                break;
-        }
-        mainButton.setText(msg);
+    private void mainButtonTransition(String mode) {
+        // append variable mode to R.string and find in resources
+        mainButton.setText(getResources().getString(getResources().getIdentifier(mode, "string", getPackageName())));
     }
 }
