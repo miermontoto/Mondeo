@@ -1,6 +1,8 @@
-package com.mier.mondeo;
+package com.mier.mondeo.util;
 
 import android.os.Environment;
+
+import com.mier.mondeo.obj.Travel;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,9 +13,6 @@ import java.util.Scanner;
 
 /**
  * Class that manages data storage and retrieval.
- * All travels are stored in a single file, called "travels.csv".
- * Each travel is stored in a single line, with the following format:
- * "origin,destination,date,startTime,firstSplit,secondSplit,thirdSplit,finishTime"
  *
  * @author Juan Mier
  */
@@ -28,21 +27,19 @@ public class FileHelper {
     public static ArrayList<Travel> readTravels() {
         ArrayList<Travel> travels = new ArrayList<Travel>();
         try {
-            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/travels.csv");
-            if (!file.exists()) file.createNewFile();
+            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + FILENAME);
+            if (!file.exists()) return null;
             FileInputStream fis = new FileInputStream(file);
             Scanner scr = new Scanner(fis);
             scr.useDelimiter("\\Z");
             while (scr.hasNext()) {
                 String line = scr.next();
                 String[] travelData = line.split(",");
-                travels.add(new Travel(travelData[0], travelData[1], travelData[2], travelData[3], travelData[4], travelData[5], travelData[6], travelData[7]));
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            return travels;
         }
+        return travels;
     }
 
     /**
@@ -51,7 +48,7 @@ public class FileHelper {
      */
     public static void writeTravel(Travel travel) {
         try {
-            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/travels.csv");
+            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + FILENAME);
             if (!file.exists()) file.createNewFile();
             FileOutputStream fos = new FileOutputStream(file, true);
             fos.write(travel.toString().getBytes());

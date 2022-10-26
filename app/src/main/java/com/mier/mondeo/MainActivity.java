@@ -1,5 +1,6 @@
 package com.mier.mondeo;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -8,14 +9,21 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.jetbrains.annotations.Contract;
+
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int START = 0;
+    private static final int LAP = 1;
+    private static final int CONTINUE = 2;
+
     private boolean running = false;
+    private boolean partialRunning = true;
     private Button mainButton;
     private Button resetButton;
-    private TextView current;
+    private TextView partial;
     private TextView total;
     private long seconds = 0;
     private long currentSeconds = 0;
@@ -32,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
         mainButton = findViewById(R.id.buttonStart);
         resetButton = findViewById(R.id.buttonStop);
-        current = (TextView) findViewById(R.id.currentTime);
+        partial = (TextView) findViewById(R.id.currentTime);
         total = (TextView) findViewById(R.id.totalTime);
         runTimer();
 
@@ -46,34 +54,42 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClickRight(View view) {
         if(running) onClickStop();
-        else onClickReset();
+        else onClickSave();
     }
 
     private void onClickLap() {
-        currentSeconds = 0;
+        partialRunning = false;
         updateTimers();
+        currentSeconds = 0;
     }
 
-    private void onClickReset() {
+    private void onClickSave() {
+        clear();
+        // TODO: save
+        // TODO: save notification
+    }
+
+    private void clear() {
         seconds = 0;
         currentSeconds = 0;
         updateTimers();
-        resetButton.setText(getResources().getText(R.string.stop));
+        stopSaveTransition(true);
         resetButton.setEnabled(false);
+        mainButtonTransition(START);
     }
 
 
     private void onClickStart() {
-        mainButton.setText(getResources().getString(R.string.lap));
         if(resetButton.getText() == getResources().getText(R.string.stop)) seconds = 0;
         running = true;
         resetButton.setEnabled(true);
-        resetButton.setText(getResources().getText(R.string.stop));
+        stopSaveTransition(true);
+        mainButtonTransition(LAP);
     }
 
     private void onClickStop() {
-        mainButton.setText(getResources().getString(R.string.start));
-        resetButton.setText(getResources().getString(R.string.clear));
+        mainButtonTransition(CONTINUE);
+        stopSaveTransition(false);
         running = false;
     }
 
@@ -93,6 +109,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @NonNull
+    @Contract(value = "_ -> new", pure = true)
     public static int[] formatSeconds(long seconds) {
         return new int[] {
                 (int) seconds / 3600,
@@ -105,8 +123,38 @@ public class MainActivity extends AppCompatActivity {
         int[] totalTime = formatSeconds(seconds);
         int[] currentTime = formatSeconds(currentSeconds);
 
-        total.setText(String.format(Locale.UK, "%02d:%02d:%02d", totalTime[0], totalTime[1], totalTime[2]));
-        current.setText(String.format(Locale.UK, "%02d:%02d:%02d", currentTime[0], currentTime[1], currentTime[2]));
+        total.setText(String.format(Locale.getDefault(), "%02d:%02d:%02d", totalTime[0], totalTime[1], totalTime[2]));
+        if(partialRunning) partial.setText(String.format(Locale.getDefault(), "%02d:%02d:%02d", currentTime[0], currentTime[1], currentTime[2]));
 
+    }
+    
+    private void leftToggle() {
+        if(mainButton.getText().equals(getResources().getString(R.string.start))) mainButton.setText(getResources().getString(R.string.lap));
+        else mainButton.setText(getResources().getString(R.string.start));
+    }
+    
+    private void stopSaveTransition(boolean stop) {
+        resetButton.setText(getResources().getString(stop ? R.string.stop : R.string.save));
+        resetButton.setBackgroundColor(getResources().getColor(stop ? R.color.red : R.color.green));
+    }
+
+    private void mainButtonTransition(int mode) {
+        String msg;
+
+        switch(mode) {
+            case START:
+                msg = getResources().getString(R.string.start);
+                break;
+            case LAP:
+                msg = getResources().getString(R.string.lap);
+                break;
+            case CONTINUE:
+                msg = getResources().getString(R.string.unpause);
+                break;
+            default:
+                msg = getResources().getString(R.string.error);
+                break;
+        }
+        mainButton.setText(msg);
     }
 }
