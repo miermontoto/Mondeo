@@ -14,6 +14,16 @@ public class Travel {
     private int numberOfSplits;
     private boolean isFinished;
 
+    /**
+     * Basic constructor for a new travel.
+     * Only the basic information is required.
+     *
+     * @param origin
+     * @param destination
+     * @param date
+     * @param startTime
+     * @param numberOfSplits
+     */
     public Travel(String origin, String destination, Date date, Time startTime, int numberOfSplits) {
         this.origin = origin;
         this.destination = destination;
@@ -25,6 +35,19 @@ public class Travel {
         isFinished = true;
     }
 
+    /**
+     * Complete constructor for a new travel.
+     *
+     * @param origin
+     * @param destination
+     * @param date
+     * @param startTime
+     * @param finishTime
+     * @param splits
+     * @param note
+     * @param numberOfSplits
+     * @param isFinished
+     */
     public Travel(String origin, String destination, Date date, Time startTime, Time finishTime, ArrayList<Split> splits, String note, int numberOfSplits, boolean isFinished) {
         this(origin, destination, date, startTime, numberOfSplits);
         isFinished = true;

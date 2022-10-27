@@ -9,23 +9,24 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.jetbrains.annotations.Contract;
-
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
     // logic variables
-    private boolean running = false;
-    private boolean partialRunning = true;
-    private long seconds = 0;
-    private long currentSeconds = 0;
+    private boolean running;
+    private long seconds;
+    private long partialSeconds;
 
     // ui elements
     private Button mainButton;
     private Button resetButton;
     private TextView partial;
     private TextView total;
+
+    // other variables
+    private static final int SPLIT_ON_SCREEN_CYCLES = 5;
+    private int splitOnScreenCycles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +42,11 @@ public class MainActivity extends AppCompatActivity {
         resetButton = findViewById(R.id.buttonStop);
         partial = (TextView) findViewById(R.id.currentTime);
         total = (TextView) findViewById(R.id.totalTime);
-        runTimer();
+
+        splitOnScreenCycles = 0;
+        seconds = 0;
+        partialSeconds = 0;
+        running = false;
 
         resetButton.setEnabled(false);
     }
@@ -57,9 +62,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onClickLap() {
-        partialRunning = false;
-        updateTimers();
-        currentSeconds = 0;
+        splitOnScreenCycles = SPLIT_ON_SCREEN_CYCLES;
+        partialSeconds = 0;
     }
 
     private void onClickSave() {
@@ -70,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void clear() {
         seconds = 0;
-        currentSeconds = 0;
+        partialSeconds = 0;
         updateTimers();
         stopSaveTransition(true);
         resetButton.setEnabled(false);
@@ -79,8 +83,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void onClickStart() {
+        runTimer();
         if(resetButton.getText() == getResources().getText(R.string.stop)) seconds = 0;
-        running = true;
         resetButton.setEnabled(true);
         stopSaveTransition(true);
         mainButtonTransition("lap");
@@ -94,16 +98,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void runTimer() {
         final Handler handler = new Handler();
+        running = true;
         handler.post(new Runnable() {
             @Override
             public void run() {
                 if(running) {
+                    updateTimers();
                     seconds++;
-                    currentSeconds++;
+                    partialSeconds++;
+                    handler.postDelayed(this, 1000);
+                } else {
+                    seconds--;
+                    partialSeconds--;
                 }
-
-                updateTimers();
-                handler.postDelayed(this, 1000);
             }
         });
     }
@@ -119,11 +126,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateTimers() {
         int[] totalTime = formatSeconds(seconds);
-        int[] currentTime = formatSeconds(currentSeconds);
+        int[] currentTime = formatSeconds(partialSeconds);
 
         total.setText(String.format(Locale.getDefault(), "%02d:%02d:%02d", totalTime[0], totalTime[1], totalTime[2]));
-        if(partialRunning) partial.setText(String.format(Locale.getDefault(), "%02d:%02d:%02d", currentTime[0], currentTime[1], currentTime[2]));
-
+        if(splitOnScreenCycles == 0) partial.setText(String.format(Locale.getDefault(), "%02d:%02d:%02d", currentTime[0], currentTime[1], currentTime[2]));
+        else splitOnScreenCycles--;
     }
     
     private void leftToggle() {
@@ -133,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
     
     private void stopSaveTransition(boolean stop) {
         resetButton.setText(getResources().getString(stop ? R.string.stop : R.string.save));
-        resetButton.setBackgroundColor(getResources().getColor(stop ? R.color.red : R.color.green));
+        resetButton.setBackgroundColor(getResources().getColor(stop ? R.color.red : R.color.green, getTheme()));
     }
 
     private void mainButtonTransition(String mode) {
