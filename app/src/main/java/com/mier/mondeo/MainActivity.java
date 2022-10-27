@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
@@ -36,12 +38,14 @@ public class MainActivity extends AppCompatActivity {
         if(savedInstanceState != null) {
             running = savedInstanceState.getBoolean("running");
             seconds = savedInstanceState.getLong("seconds");
+            partialSeconds = savedInstanceState.getLong("partialSeconds");
+            if(running) runTimer();
         }
 
         mainButton = findViewById(R.id.buttonStart);
         resetButton = findViewById(R.id.buttonStop);
-        partial = (TextView) findViewById(R.id.currentTime);
-        total = (TextView) findViewById(R.id.totalTime);
+        partial = findViewById(R.id.currentTime);
+        total = findViewById(R.id.totalTime);
 
         splitOnScreenCycles = 0;
         seconds = 0;
@@ -69,7 +73,8 @@ public class MainActivity extends AppCompatActivity {
     private void onClickSave() {
         clear();
         // TODO: save
-        // TODO: save notification
+
+        setSnackBar(findViewById(R.id.mainLayout), "Successfully saved the travel.");
     }
 
     private void clear() {
@@ -133,11 +138,6 @@ public class MainActivity extends AppCompatActivity {
         else splitOnScreenCycles--;
     }
     
-    private void leftToggle() {
-        if(mainButton.getText().equals(getResources().getString(R.string.start))) mainButton.setText(getResources().getString(R.string.lap));
-        else mainButton.setText(getResources().getString(R.string.start));
-    }
-    
     private void stopSaveTransition(boolean stop) {
         resetButton.setText(getResources().getString(stop ? R.string.stop : R.string.save));
         resetButton.setBackgroundColor(getResources().getColor(stop ? R.color.red : R.color.green, getTheme()));
@@ -146,5 +146,15 @@ public class MainActivity extends AppCompatActivity {
     private void mainButtonTransition(String mode) {
         // append variable mode to R.string and find in resources
         mainButton.setText(getResources().getString(getResources().getIdentifier(mode, "string", getPackageName())));
+    }
+
+    /**
+     * Set a snackbar to the bottom of the screen
+     * @param root the root view of the activity
+     * @param snackTitle the title of the snackbar
+     */
+    public static void setSnackBar(View root, String snackTitle) {
+        Snackbar snackbar = Snackbar.make(root, snackTitle, Snackbar.LENGTH_SHORT);
+        snackbar.show();
     }
 }
