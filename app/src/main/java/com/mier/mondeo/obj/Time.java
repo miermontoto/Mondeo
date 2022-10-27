@@ -1,5 +1,7 @@
 package com.mier.mondeo.obj;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Locale;
 
 public class Time {
@@ -42,6 +44,7 @@ public class Time {
         return second;
     }
 
+    @NotNull
     @Override
     public String toString() {
         return String.format(Locale.getDefault(), "%02d:%02d:%02d", hour, minute, second);

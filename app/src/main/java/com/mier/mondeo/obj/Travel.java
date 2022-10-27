@@ -2,6 +2,7 @@ package com.mier.mondeo.obj;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class Travel {
     private String origin;
@@ -11,8 +12,6 @@ public class Travel {
     private Time finishTime;
     private ArrayList<Split> splits;
     private String note;
-    private int numberOfSplits;
-    private boolean isFinished;
 
     /**
      * Basic constructor for a new travel.
@@ -22,17 +21,13 @@ public class Travel {
      * @param destination
      * @param date
      * @param startTime
-     * @param numberOfSplits
      */
-    public Travel(String origin, String destination, Date date, Time startTime, int numberOfSplits) {
+    public Travel(String origin, String destination, Date date, Time startTime) {
         this.origin = origin;
         this.destination = destination;
         this.date = date;
         this.splits = new ArrayList<>();
         this.startTime = startTime;
-
-        numberOfSplits = 0;
-        isFinished = true;
     }
 
     /**
@@ -45,14 +40,25 @@ public class Travel {
      * @param finishTime
      * @param splits
      * @param note
-     * @param numberOfSplits
-     * @param isFinished
      */
-    public Travel(String origin, String destination, Date date, Time startTime, Time finishTime, ArrayList<Split> splits, String note, int numberOfSplits, boolean isFinished) {
-        this(origin, destination, date, startTime, numberOfSplits);
-        isFinished = true;
-        this.numberOfSplits = numberOfSplits;
+    public Travel(String origin, String destination, Date date, Time startTime, Time finishTime, ArrayList<Split> splits, String note) {
+        this(origin, destination, date, startTime);
         this.splits.addAll(splits);
+    }
+
+    public Travel(String data) {
+        String[] parts = data.split(";");
+        this.origin = parts[0];
+        this.destination = parts[1];
+        this.date = new Date(parts[2]);
+        this.startTime = new Time(parts[3]);
+        this.finishTime = new Time(parts[4]);
+        this.splits = new ArrayList<>();
+        String[] splitParts = parts[5].split("¡");
+        for(String splitPart : splitParts) {
+            this.splits.add(new Split(splitPart));
+        }
+        this.note = parts[6];
     }
 
     public void setFinishTime(Time finishTime) {
@@ -60,25 +66,21 @@ public class Travel {
     }
 
     public void addSplit(Split split) {
-        this.splits.add(split);
-        numberOfSplits++;
+        splits.add(split);
     }
 
     public Split getSplit(int index) {
         return this.splits.get(index);
     }
 
-    public boolean removeSplit(int index) {
-        if (index < 0 || index >= numberOfSplits) {
-            return false;
-        }
-        this.splits.remove(index);
-        numberOfSplits--;
-        return true;
+    public Split removeSplit(int index) {
+        return splits.remove(index);
     }
 
     @Override
     public String toString() {
-        return String.format(Locale.getDefault(), "%s,%s,%s,%s,%s,%s,%s");
+        return String.format(Locale.getDefault(), "%s;%s;%s;%s;%s;%s;%s",
+                origin, destination, date.toString(), startTime.toString(), finishTime.toString(),
+                    splits.isEmpty() ? "" : splits.stream().map(Split::toString).collect(Collectors.joining("¡")), note);
     }
 }

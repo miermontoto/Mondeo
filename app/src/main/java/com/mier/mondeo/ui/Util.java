@@ -5,6 +5,11 @@ import android.view.View;
 import com.google.android.material.snackbar.Snackbar;
 
 public class Util {
+
+    private Util() {
+        throw new IllegalStateException("Utility class");
+    }
+
     /**
      * Set a snackbar to the bottom of the screen
      * @param root the root view of the activity

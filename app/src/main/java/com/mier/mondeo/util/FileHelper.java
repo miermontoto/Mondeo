@@ -18,44 +18,40 @@ import java.util.Scanner;
  */
 public class FileHelper {
 
-    private static final String FILENAME = "travels.csv";
-
     /**
-     * Reads the file "travels.csv" and returns a list of all travels.
-     * @return A list of all travels.
+     * Reads from a file and returns the data as a String vector.
      */
-    public static ArrayList<Travel> readTravels() {
-        ArrayList<Travel> travels = new ArrayList<Travel>();
+    public static ArrayList<String> readFile(String filename) {
+        ArrayList<String> data = new ArrayList<>();
         try {
-            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + FILENAME);
-            if (!file.exists()) return null;
-            FileInputStream fis = new FileInputStream(file);
-            Scanner scr = new Scanner(fis);
-            scr.useDelimiter("\\Z");
-            while (scr.hasNext()) {
-                String line = scr.next();
-                String[] travelData = line.split(",");
+            File file = new File(Environment.getExternalStorageDirectory(), filename);
+            FileInputStream inputStream = new FileInputStream(file);
+            Scanner scr = new Scanner(inputStream);
+            while (scr.hasNextLine()) {
+                data.add(scr.nextLine());
             }
+            scr.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return travels;
+        return data;
     }
 
-    /**
-     * Writes a new travel to the file "travels.csv".
-     * @param travel The travel to be written.
-     */
-    public static void writeTravel(Travel travel) {
+    public static void writeToFile(String filename, String line, boolean append) {
         try {
-            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + FILENAME);
+            File file = new File(Environment.getExternalStorageDirectory(), filename);
             if (!file.exists()) file.createNewFile();
-            FileOutputStream fos = new FileOutputStream(file, true);
-            fos.write(travel.toString().getBytes());
+            FileOutputStream fos = new FileOutputStream(file, append);
+            fos.write(line.getBytes());
             fos.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean fileExists(String filename) {
+        File file = new File(Environment.getExternalStorageDirectory(), filename);
+        return file.exists();
     }
 
 }

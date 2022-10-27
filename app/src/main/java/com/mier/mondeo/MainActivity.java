@@ -46,6 +46,13 @@ public class MainActivity extends AppCompatActivity {
 
         partialSuspendCycles = 0;
         setStatus(STOPPED);
+
+        rightButton.setOnLongClickListener(new View.OnLongClickListener() {
+            public boolean onLongClick(View v) {
+                setStatus(STOPPED);
+                return true;
+            }
+        });
     }
 
     /* --- status methods --- */
