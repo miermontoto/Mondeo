@@ -1,24 +1,35 @@
-package com.mier.mondeo;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+package com.mier.Mondeo;
 
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.view.Menu;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.navigation.NavigationView;
 
-import com.mier.mondeo.obj.Travel;
-import com.mier.mondeo.ui.Util;
-import com.mier.mondeo.util.LoadSave;
+import androidx.appcompat.widget.Toolbar;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.AppCompatActivity;
+import com.mier.Mondeo.databinding.ActivityMainBinding;
+import com.mier.Mondeo.obj.Travel;
+import com.mier.Mondeo.ui.Util;
+import com.mier.Mondeo.util.LoadSave;
 
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
+
+    private AppBarConfiguration mAppBarConfiguration;
+    private ActivityMainBinding binding;
 
     // timer status
     private static final byte STOPPED = 0;
@@ -37,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView partial;
     private TextView total;
     private Spinner travelList;
-    private Toolbar toolbar;
 
     // other variables
     private static final int SPLIT_ON_SCREEN_CYCLES = 5;
@@ -46,19 +56,33 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        setSupportActionBar(binding.appBarMain.toolbar);
+
+        DrawerLayout drawer = binding.drawerLayout;
+        NavigationView navigationView = binding.navView;
+        // Passing each menu ID as a set of Ids because each
+        // menu should be considered as top level destinations.
+        mAppBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
+                .setOpenableLayout(drawer)
+                .build();
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+        NavigationUI.setupWithNavController(navigationView, navController);
 
         leftButton = findViewById(R.id.leftButton);
         rightButton = findViewById(R.id.rightButton);
         partial = findViewById(R.id.currentTime);
         travelList = findViewById(R.id.travels);
         total = findViewById(R.id.totalTime);
-        toolbar = findViewById(R.id.toolbar);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, LoadSave.getTravelList());
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         travelList.setAdapter(adapter);
-        setSupportActionBar(toolbar);
 
         partialSuspendCycles = 0;
         setStatus(STOPPED);
@@ -69,6 +93,20 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
+                || super.onSupportNavigateUp();
     }
 
     /* --- status methods --- */
@@ -119,9 +157,9 @@ public class MainActivity extends AppCompatActivity {
 
     public static int[] formatSeconds(long seconds) {
         return new int[] {
-            (int) (seconds / 3600),
-            (int) (seconds % 3600 / 60),
-            (int) (seconds % 60)
+                (int) (seconds / 3600),
+                (int) (seconds % 3600 / 60),
+                (int) (seconds % 60)
         };
     }
 
