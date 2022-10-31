@@ -20,9 +20,10 @@ private FragmentHistoryBinding binding;
         return binding.getRoot();
     }
 
-@Override
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
     }
+
 }

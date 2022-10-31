@@ -18,4 +18,12 @@
     <string name="save">Save</string>
     <string name="unpause">Continue</string>
     <string name="error">Error</string>
+
+    <string name="add_route">Add</string>
+    <string name="add_route_origin">Origin</string>
+    <string name="add_route_destination">Destination</string>
+    <string name="add_split">+</string>
+    <string name="remove_split">-</string>
+    <string name="add_split_title">Add split</string>
+    <string name="add_route_title">Add route</string>
 </resources>

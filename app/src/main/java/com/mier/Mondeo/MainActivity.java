@@ -19,17 +19,19 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import com.mier.Mondeo.databinding.ActivityMainBinding;
+import com.mier.Mondeo.obj.Route;
+import com.mier.Mondeo.obj.Time;
 import com.mier.Mondeo.obj.Travel;
 import com.mier.Mondeo.ui.Util;
 import com.mier.Mondeo.util.LoadSave;
 
+import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
     // android default stuff
     private AppBarConfiguration mAppBarConfiguration;
-    private ActivityMainBinding binding;
 
     // timer status
     private static final byte STOPPED = 0;
@@ -40,17 +42,17 @@ public class MainActivity extends AppCompatActivity {
     private long seconds;
     private long partialSeconds;
     private byte status;
+    private boolean disableLaps;
 
     // stored data
     private Travel currentTravel;
-    private String[] loadedTravels;
+    private Route constructionRoute;
 
     // ui elements
     private Button leftButton;
     private Button rightButton;
     private TextView partial;
     private TextView total;
-    private Spinner travelList;
 
     // other variables
     private static final int SPLIT_ON_SCREEN_CYCLES = 5;
@@ -60,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        com.mier.Mondeo.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.appBarMain.toolbar);
@@ -80,15 +82,10 @@ public class MainActivity extends AppCompatActivity {
         leftButton = findViewById(R.id.leftButton);
         rightButton = findViewById(R.id.rightButton);
         partial = findViewById(R.id.currentTime);
-        travelList = findViewById(R.id.travels);
+        Spinner routeList = findViewById(R.id.travels);
         total = findViewById(R.id.totalTime);
 
-        loadedTravels = LoadSave.getTravelList();
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, loadedTravels);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        travelList.setAdapter(adapter);
-        if(loadedTravels.length != 0) currentTravel = new Travel(loadedTravels[travelList.getSelectedItemPosition()]);
-        else leftButton.setEnabled(false);
+        List<Route> routes = reloadRoutes();
 
         partialSuspendCycles = 0;
         setStatus(STOPPED);
@@ -100,11 +97,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        travelList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        routeList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 leftButton.setEnabled(true);
-                currentTravel = new Travel(loadedTravels[position]);
+                currentTravel = new Travel(routes.get(position));
+                setStatus(STOPPED);
             }
 
             @Override
@@ -132,6 +130,10 @@ public class MainActivity extends AppCompatActivity {
         if(status == RUNNING) {
             partialSuspendCycles = SPLIT_ON_SCREEN_CYCLES;
             partialSeconds = 0;
+            currentTravel.addRelative(new Time());
+            if(currentTravel.getRelatives().length == currentTravel.getRoute().getSplits().length) {
+                disableLaps = true;
+            }
         }
         else setStatus(RUNNING);
     }
@@ -140,13 +142,40 @@ public class MainActivity extends AppCompatActivity {
         if(status == RUNNING) setStatus(PAUSED);
         else {
             setStatus(STOPPED);
-            // TODO: save travel
-            Util.setSnackBar(view, "Successfully saved the travel.");
+
+            int[] finishTime = formatSeconds(seconds);
+            currentTravel.setTotalTime(new Time(String.format(Locale.getDefault(), "%02d:%02d:%02d", finishTime[0], finishTime[1], finishTime[2])));
+            currentTravel.setFinishTime(new Time());
+
+            if(LoadSave.addTravel(currentTravel)) Util.setSnackBar(view, "Successfully saved the travel.");
+            else Util.setSnackBar(view, "Failed to save the travel.");
         }
     }
 
-    public void onChangeTravelList(View view) {
-        currentTravel = new Travel(loadedTravels[travelList.getSelectedItemPosition()]);
+    public void addRoute(View view) {
+        LoadSave.addRoute(new Route(findViewById(R.id.addRouteOrigin).toString(), findViewById(R.id.addRouteDestination).toString()));
+        Util.setSnackBar(view, "Successfully added the route.");
+        reloadRoutes();
+    }
+
+    public void addSplit(View view) {
+
+    }
+
+    public void removeSplit(View view) {
+
+    }
+
+    public List<Route> reloadRoutes() {
+        Spinner routeList = findViewById(R.id.travels);
+        List<Route> loadedRoutes = LoadSave.getRoutes();
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, loadedRoutes.stream().map(Route::getTitleComplete).toArray(String[]::new));
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        routeList.setAdapter(adapter);
+        if(loadedRoutes.size() != 0) currentTravel = new Travel(loadedRoutes.get(routeList.getSelectedItemPosition()));
+        else leftButton.setEnabled(false);
+
+        return loadedRoutes;
     }
 
     /* --- stopwatch logic --- */
@@ -197,10 +226,12 @@ public class MainActivity extends AppCompatActivity {
         switch(status) {
             case RUNNING:
                 leftId = R.string.lap;
+                if(disableLaps) leftButton.setEnabled(false);
                 runTimer();
                 break;
             case PAUSED:
                 leftId = R.string.unpause;
+                leftButton.setEnabled(true);
                 break;
             case STOPPED:
                 leftId = R.string.start;

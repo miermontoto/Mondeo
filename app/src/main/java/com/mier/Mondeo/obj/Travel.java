@@ -9,61 +9,86 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class Travel {
-    private String origin;
-    private String destination;
+    private Route route;
     private Date date;
     private Time startTime;
     private Time finishTime;
-    private List<Split> splits;
+    private Time totalTime;
     private String note;
-    private boolean completed;
+    private List<Time> relatives;
 
-    public Travel(String origin, String destination, List<Split> splits) {
-        this.origin = origin;
-        this.destination = destination;
-        this.splits = new LinkedList<>(splits);
-        completed = false;
+    public Travel(Route route) {
+        this.route = route;
+        relatives = new LinkedList<>();
     }
 
-    public Travel(String data) {
-        String[] split = data.split(",");
-        this.origin = split[0];
-        this.destination = split[1];
-        this.splits = new LinkedList<>();
-        for(int i = 5; i < split.length; i++) {
-            this.splits.add(new Split(split[i]));
-        }
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public void setDate() {
+        this.date = new Date();
+    }
+
+    public void setStartTime(Time startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setStartTime() {
+        this.startTime = new Time();
     }
 
     public void setFinishTime(Time finishTime) {
         this.finishTime = finishTime;
     }
 
-    public void addSplit(Split split) {
-        splits.add(split);
+    public void setFinishTime() {
+        this.finishTime = new Time();
     }
 
-    public Split getSplit(int index) {
-        return this.splits.get(index);
+    public void setNote (String note) {
+        this.note = note;
     }
 
-    public Split removeSplit(int index) {
-        return splits.remove(index);
+    public void setTotalTime(Time time) {
+        this.totalTime = time;
+    }
+
+    public Time getTotalTime() {
+        return totalTime;
+    }
+
+    public Time getFinishTime() {
+        return finishTime;
+    }
+
+    public Time getStartTime() {
+        return startTime;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void addRelative(Time rel) {
+        relatives.add(rel);
+    }
+
+    public String[] getRelatives() {
+        return relatives.stream().map(Time::toString).toArray(String[]::new);
+    }
+
+    public Route getRoute() {
+        return route;
     }
 
     @NotNull
     @Override
     public String toString() {
-        return String.format(Locale.getDefault(), "%s;%s;%s",
-                origin, destination, splits.isEmpty() ? "" : splits.stream().map(Split::toString).collect(Collectors.joining("¡")));
-    }
-
-    public String getTitle() {
-        StringBuilder title = new StringBuilder(String.format("%s → ", origin));
-        for(Split split : splits) {
-            title.append(String.format("%s → ", split.getDestination()));
-        }
-        title.append(destination);
-        return title.toString();
+        return String.format(Locale.getDefault(), "%s^%s^%s^%s^%s^%s^%s", route, date, startTime, finishTime, totalTime, note, relatives);
     }
 }

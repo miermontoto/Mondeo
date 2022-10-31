@@ -1,6 +1,7 @@
 package com.mier.Mondeo.obj;
 
 import java.util.Locale;
+import java.util.Calendar;
 
 public class Date {
 
@@ -27,6 +28,13 @@ public class Date {
         this.day = day;
         this.month = month;
         this.year = year;
+    }
+
+    public Date() {
+        Calendar calendar = Calendar.getInstance();
+        this.day = (byte) calendar.get(Calendar.DAY_OF_MONTH);
+        this.month = (byte) (calendar.get(Calendar.MONTH) + 1);
+        this.year = (short) calendar.get(Calendar.YEAR);
     }
 
     public byte getDay() {

@@ -3,6 +3,7 @@ package com.mier.Mondeo.obj;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
+import java.util.Date;
 
 public class Time {
 
@@ -30,6 +31,13 @@ public class Time {
         this.hour = hour;
         this.minute = minute;
         this.second = second;
+    }
+
+    public Time() {
+        java.util.Date date = new Date();
+        this.hour = (byte) date.getHours();
+        this.minute = (byte) date.getMinutes();
+        this.second = (byte) date.getSeconds();
     }
 
     public byte getHour() {
