@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.view.Menu;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
@@ -26,6 +27,7 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
+    // android default stuff
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
 
@@ -38,7 +40,10 @@ public class MainActivity extends AppCompatActivity {
     private long seconds;
     private long partialSeconds;
     private byte status;
+
+    // stored data
     private Travel currentTravel;
+    private String[] loadedTravels;
 
     // ui elements
     private Button leftButton;
@@ -78,9 +83,12 @@ public class MainActivity extends AppCompatActivity {
         travelList = findViewById(R.id.travels);
         total = findViewById(R.id.totalTime);
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, LoadSave.getTravelList());
+        loadedTravels = LoadSave.getTravelList();
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, loadedTravels);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         travelList.setAdapter(adapter);
+        if(loadedTravels.length != 0) currentTravel = new Travel(loadedTravels[travelList.getSelectedItemPosition()]);
+        else leftButton.setEnabled(false);
 
         partialSuspendCycles = 0;
         setStatus(STOPPED);
@@ -90,6 +98,17 @@ public class MainActivity extends AppCompatActivity {
                 setStatus(STOPPED);
                 return true;
             }
+        });
+
+        travelList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                leftButton.setEnabled(true);
+                currentTravel = new Travel(loadedTravels[position]);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
     }
 
@@ -124,6 +143,10 @@ public class MainActivity extends AppCompatActivity {
             // TODO: save travel
             Util.setSnackBar(view, "Successfully saved the travel.");
         }
+    }
+
+    public void onChangeTravelList(View view) {
+        currentTravel = new Travel(loadedTravels[travelList.getSelectedItemPosition()]);
     }
 
     /* --- stopwatch logic --- */

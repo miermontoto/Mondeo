@@ -1,6 +1,10 @@
 package com.mier.Mondeo.obj;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
@@ -10,55 +14,25 @@ public class Travel {
     private Date date;
     private Time startTime;
     private Time finishTime;
-    private ArrayList<Split> splits;
+    private List<Split> splits;
     private String note;
+    private boolean completed;
 
-    /**
-     * Basic constructor for a new travel.
-     * Only the basic information is required.
-     *
-     * @param origin
-     * @param destination
-     * @param date
-     * @param startTime
-     */
-    public Travel(String origin, String destination, Date date, Time startTime) {
+    public Travel(String origin, String destination, List<Split> splits) {
         this.origin = origin;
         this.destination = destination;
-        this.date = date;
-        this.splits = new ArrayList<>();
-        this.startTime = startTime;
-    }
-
-    /**
-     * Complete constructor for a new travel.
-     *
-     * @param origin
-     * @param destination
-     * @param date
-     * @param startTime
-     * @param finishTime
-     * @param splits
-     * @param note
-     */
-    public Travel(String origin, String destination, Date date, Time startTime, Time finishTime, ArrayList<Split> splits, String note) {
-        this(origin, destination, date, startTime);
-        this.splits.addAll(splits);
+        this.splits = new LinkedList<>(splits);
+        completed = false;
     }
 
     public Travel(String data) {
-        String[] parts = data.split(";");
-        this.origin = parts[0];
-        this.destination = parts[1];
-        this.date = new Date(parts[2]);
-        this.startTime = new Time(parts[3]);
-        this.finishTime = new Time(parts[4]);
-        this.splits = new ArrayList<>();
-        String[] splitParts = parts[5].split("¡");
-        for(String splitPart : splitParts) {
-            this.splits.add(new Split(splitPart));
+        String[] split = data.split(",");
+        this.origin = split[0];
+        this.destination = split[1];
+        this.splits = new LinkedList<>();
+        for(int i = 5; i < split.length; i++) {
+            this.splits.add(new Split(split[i]));
         }
-        this.note = parts[6];
     }
 
     public void setFinishTime(Time finishTime) {
@@ -77,11 +51,11 @@ public class Travel {
         return splits.remove(index);
     }
 
+    @NotNull
     @Override
     public String toString() {
-        return String.format(Locale.getDefault(), "%s;%s;%s;%s;%s;%s;%s;%s",
-                this.getTitle(), origin, destination, date.toString(), startTime.toString(), finishTime.toString(),
-                    splits.isEmpty() ? "" : splits.stream().map(Split::toString).collect(Collectors.joining("¡")), note);
+        return String.format(Locale.getDefault(), "%s;%s;%s",
+                origin, destination, splits.isEmpty() ? "" : splits.stream().map(Split::toString).collect(Collectors.joining("¡")));
     }
 
     public String getTitle() {
