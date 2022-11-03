@@ -15,7 +15,7 @@ public class LoadSave {
         ArrayList<String> data = FileHelper.readFile(routeList);
         List<Route> routes = new ArrayList<>();
         for (String line : data) {
-            String[] fields = line.split(",");
+            String[] fields = line.split("¿?");
             routes.add(new Route(fields[0], fields[1]));
         }
         return routes;

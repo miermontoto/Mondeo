@@ -23,7 +23,10 @@ import com.mier.Mondeo.obj.Route;
 import com.mier.Mondeo.obj.Time;
 import com.mier.Mondeo.obj.Travel;
 import com.mier.Mondeo.ui.Util;
+import com.mier.Mondeo.util.FileHelper;
 import com.mier.Mondeo.util.LoadSave;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 import java.util.Locale;
@@ -108,6 +111,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
+
+        FileHelper.verifyStoragePermissions(this);
     }
 
     @Override
@@ -153,7 +158,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addRoute(View view) {
-        LoadSave.addRoute(new Route(findViewById(R.id.addRouteOrigin).toString(), findViewById(R.id.addRouteDestination).toString()));
+        TextView src = findViewById(R.id.addRouteOrigin);
+        TextView dst = findViewById(R.id.addRouteDestination);
+        LoadSave.addRoute(new Route(src.getText().toString(), dst.getText().toString()));
         Util.setSnackBar(view, "Successfully added the route.");
         reloadRoutes();
     }
@@ -169,7 +176,11 @@ public class MainActivity extends AppCompatActivity {
     public List<Route> reloadRoutes() {
         Spinner routeList = findViewById(R.id.travels);
         List<Route> loadedRoutes = LoadSave.getRoutes();
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, loadedRoutes.stream().map(Route::getTitleComplete).toArray(String[]::new));
+        String[] loadedRoutesString = new String[loadedRoutes.size()];
+        for(int i = 0; i < loadedRoutes.size(); i++) {
+            loadedRoutesString[i] = loadedRoutes.get(i).getTitleComplete();
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, loadedRoutesString);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         routeList.setAdapter(adapter);
         if(loadedRoutes.size() != 0) currentTravel = new Travel(loadedRoutes.get(routeList.getSelectedItemPosition()));
