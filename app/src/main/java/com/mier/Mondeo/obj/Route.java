@@ -24,14 +24,6 @@ public class Route {
         splits = new LinkedList<>();
     }
 
-    public Route(String data) {
-        String[] info = data.split("¿?");
-        this.origin = info[0];
-        this.destination = info[1];
-        splits = new LinkedList<>();
-        if(info.length > 2) Collections.addAll(splits, info[2].split(">"));
-    }
-
     public String[] getSplits() {
         return splits.toArray(new String[0]);
     }
@@ -60,18 +52,8 @@ public class Route {
         this.destination = destination;
     }
 
-    @NotNull
-    @Override
-    public String toString() {
-        String data = String.format(Locale.getDefault(), "%s¿?%s", origin, destination);
-
-        if(!splits.isEmpty()) {
-            data += "¿?";
-            for(String s: splits) {
-                data += s + ">";
-            }
-        }
-        return data;
+    public boolean hasSplits() {
+        return !splits.isEmpty();
     }
 
     @NotNull

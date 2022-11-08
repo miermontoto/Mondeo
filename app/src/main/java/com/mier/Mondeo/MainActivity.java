@@ -23,10 +23,7 @@ import com.mier.Mondeo.obj.Route;
 import com.mier.Mondeo.obj.Time;
 import com.mier.Mondeo.obj.Travel;
 import com.mier.Mondeo.ui.Util;
-import com.mier.Mondeo.util.FileHelper;
-import com.mier.Mondeo.util.LoadSave;
-
-import org.w3c.dom.Text;
+import com.mier.Mondeo.util.Loader;
 
 import java.util.List;
 import java.util.Locale;
@@ -49,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
 
     // stored data
     private Travel currentTravel;
-    private Route constructionRoute;
 
     // ui elements
     private Button leftButton;
@@ -111,8 +107,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
-
-        FileHelper.verifyStoragePermissions(this);
     }
 
     @Override
@@ -152,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
             currentTravel.setTotalTime(new Time(String.format(Locale.getDefault(), "%02d:%02d:%02d", finishTime[0], finishTime[1], finishTime[2])));
             currentTravel.setFinishTime(new Time());
 
-            if(LoadSave.addTravel(currentTravel)) Util.setSnackBar(view, "Successfully saved the travel.");
+            if(Loader.saveTravel(getApplicationContext(), currentTravel)) Util.setSnackBar(view, "Successfully saved the travel.");
             else Util.setSnackBar(view, "Failed to save the travel.");
         }
     }
@@ -160,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
     public void addRoute(View view) {
         TextView src = findViewById(R.id.addRouteOrigin);
         TextView dst = findViewById(R.id.addRouteDestination);
-        LoadSave.addRoute(new Route(src.getText().toString(), dst.getText().toString()));
+        Loader.saveRoute(getApplicationContext(), new Route(src.getText().toString(), dst.getText().toString()));
         Util.setSnackBar(view, "Successfully added the route.");
         reloadRoutes();
     }
@@ -175,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
 
     public List<Route> reloadRoutes() {
         Spinner routeList = findViewById(R.id.travels);
-        List<Route> loadedRoutes = LoadSave.getRoutes();
+        List<Route> loadedRoutes = Loader.loadRoutes(getApplicationContext());
         String[] loadedRoutesString = new String[loadedRoutes.size()];
         for(int i = 0; i < loadedRoutes.size(); i++) {
             loadedRoutesString[i] = loadedRoutes.get(i).getTitleComplete();
