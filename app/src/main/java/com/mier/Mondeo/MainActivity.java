@@ -169,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
 
     public List<Route> reloadRoutes() {
         Spinner routeList = findViewById(R.id.travels);
+        if(routeList == null) return null;
         List<Route> loadedRoutes = Loader.loadRoutes(getApplicationContext());
         String[] loadedRoutesString = new String[loadedRoutes.size()];
         for(int i = 0; i < loadedRoutes.size(); i++) {
