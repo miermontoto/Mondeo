@@ -22,8 +22,9 @@ import com.mier.Mondeo.databinding.ActivityMainBinding;
 import com.mier.Mondeo.obj.Route;
 import com.mier.Mondeo.obj.Time;
 import com.mier.Mondeo.obj.Travel;
-import com.mier.Mondeo.ui.Util;
-import com.mier.Mondeo.util.Loader;
+import com.mier.Mondeo.util.gps.GPSManager;
+import com.mier.Mondeo.util.uiTools;
+import com.mier.Mondeo.util.data.Loader;
 
 import java.util.List;
 import java.util.Locale;
@@ -77,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        GPSManager.getGPSPerms(this);
 
         leftButton = findViewById(R.id.leftButton);
         rightButton = findViewById(R.id.rightButton);
@@ -146,8 +149,8 @@ public class MainActivity extends AppCompatActivity {
             currentTravel.setTotalTime(new Time(String.format(Locale.getDefault(), "%02d:%02d:%02d", finishTime[0], finishTime[1], finishTime[2])));
             currentTravel.setFinishTime(new Time());
 
-            if(Loader.saveTravel(getApplicationContext(), currentTravel)) Util.setSnackBar(view, "Successfully saved the travel.");
-            else Util.setSnackBar(view, "Failed to save the travel.");
+            if(Loader.saveTravel(getApplicationContext(), currentTravel)) uiTools.setSnackBar(view, "Successfully saved the travel.");
+            else uiTools.setSnackBar(view, "Failed to save the travel.");
         }
     }
 
@@ -155,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
         TextView src = findViewById(R.id.addRouteOrigin);
         TextView dst = findViewById(R.id.addRouteDestination);
         Loader.saveRoute(getApplicationContext(), new Route(src.getText().toString(), dst.getText().toString()));
-        Util.setSnackBar(view, "Successfully added the route.");
+        uiTools.setSnackBar(view, "Successfully added the route.");
         reloadRoutes();
     }
 

@@ -1,12 +1,12 @@
-package com.mier.Mondeo.ui;
+package com.mier.Mondeo.util;
 
 import android.view.View;
 
 import com.google.android.material.snackbar.Snackbar;
 
-public class Util {
+public class uiTools {
 
-    private Util() {
+    private uiTools() {
         throw new IllegalStateException("Utility class");
     }
 

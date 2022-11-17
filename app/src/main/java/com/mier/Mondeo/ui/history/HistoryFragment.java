@@ -8,15 +8,15 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.mier.Mondeo.databinding.FragmentHistoryBinding;
+import com.mier.Mondeo.databinding.FragmentEditroutesBinding;
 
 public class HistoryFragment extends Fragment {
 
-private FragmentHistoryBinding binding;
+private FragmentEditroutesBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        binding = FragmentHistoryBinding.inflate(inflater, container, false);
+        binding = FragmentEditroutesBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 

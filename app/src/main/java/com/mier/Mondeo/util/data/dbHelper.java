@@ -1,4 +1,4 @@
-package com.mier.Mondeo.util;
+package com.mier.Mondeo.util.data;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

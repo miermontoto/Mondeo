@@ -1,9 +1,10 @@
-package com.mier.Mondeo.util;
+package com.mier.Mondeo.util.data;
 
 import android.content.Context;
 
 import com.mier.Mondeo.obj.Route;
 import com.mier.Mondeo.obj.Travel;
+import com.mier.Mondeo.util.data.dbHelper;
 
 import java.util.List;
 
@@ -21,6 +22,8 @@ public class Loader {
         db.saveRoute(route);
         return true;
     }
+
+    // TODO: loadTravels
 
     public static boolean saveTravel(Context context, Travel travel) {
         dbHelper db = new dbHelper(context);
